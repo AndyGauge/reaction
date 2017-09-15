@@ -19,7 +19,11 @@ class Board extends React.Component {
     super();
     this.state = {
       squares: Array(9).fill(null),
+      xNext: true,
     };
+  }
+  nextPlayer() {
+    return this.state.xNext ? 'X' : 'O';
   }
   renderSquare(i) {
     return (
@@ -31,12 +35,42 @@ class Board extends React.Component {
   }
   handleClick(i) {
     const squares = this.state.squares.slice();
-    squares[i] = 'X';
-    this.setState({squares: squares});
+    if (this.calculateWinner() || squares[i]) {
+      return;
+    }
+    squares[i] = this.nextPlayer();
+    this.setState({
+      squares: squares,
+      xNext: !this.state.xNext,
+    });
+  }
+  calculateWinner() {
+    const b =  this.state.squares;
+    if (b[0] == b[1] && b[0] == b[2] && b[0] !== null) {return b[0];}
+    if (b[0] == b[4] && b[0] == b[8] && b[0] !== null) {return b[0];}
+    if (b[0] == b[3] && b[0] == b[6] && b[0] !== null) {return b[0];}
+    if (b[1] == b[4] && b[1] == b[7] && b[1] !== null) {return b[1];}
+    if (b[2] == b[5] && b[2] == b[8] && b[2] !== null) {return b[2];}
+    if (b[2] == b[4] && b[2] == b[6] && b[2] !== null) {return b[2];}
+    if (b[3] == b[4] && b[3] == b[5] && b[3] !== null) {return b[3];}
+    if (b[6] == b[7] && b[6] == b[8] && b[6] !== null) {return b[6];}
+    return false;
+  }
+  newGame() {
+    this.setState({
+      squares: Array(9).fill(null),
+      xNext: true,
+    });
   }
 
   render() {
-    const status = 'Next player: X';
+    const winner = this.calculateWinner();
+    let status;
+    if (winner) {
+      status = `${winner} won the game!`;
+    } else {
+      status = `Next player: ${this.nextPlayer()}`;
+    }
 
     return (
       <div>
@@ -56,7 +90,9 @@ class Board extends React.Component {
           {this.renderSquare(7)}
           {this.renderSquare(8)}
         </div>
+        <div><button onClick={() => this.newGame()} className="new-game">New Game</button> </div>
       </div>
+
     );
   }
 }
